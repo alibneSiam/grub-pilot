@@ -6,6 +6,7 @@ import MealPicker from './components/MealPicker'
 import Tabs from './components/Tabs'
 import Disclaimer from './components/Disclaimer'
 import Report from './components/Report'
+import GoogleOneTap from './components/google auth/GoogleOneTap';
 
 function App() {
   const tabs = [
@@ -22,7 +23,8 @@ function App() {
       >
         <Hero />
         <br />
-        <Tabs tabs={tabs} defaultTab="readme" />
+        <Tabs tabs={tabs} defaultTab="signin" />
+        <GoogleOneTap />
       </div>
   )
 }

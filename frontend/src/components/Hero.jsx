@@ -1,4 +1,5 @@
 import React, { useState } from "react"
+import { useGoogleOneTapLogin } from '@react-oauth/google';
 
 const text = `In the Age of Ancients, the world was famished
 A land of abundance, amnesia, and ever-hungry goobers
@@ -14,7 +15,7 @@ const Hero = () => {
       <p className="text-left leading-relaxed font-mono font-xs cursor-pointer">
         {text.split("\n").map((line, lineIndex) => (
           <span key={lineIndex}>
-            {line.split(" ").map((word, wordIndex) => {
+            {line.split("  ").map((word, wordIndex) => {
               const id = `${lineIndex}-${wordIndex}`
               return (
                 <span
