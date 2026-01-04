@@ -1,22 +1,29 @@
 import { useGoogleOneTapLogin } from "@react-oauth/google";
-import { useEffect, useState } from "react";
 
-const GoogleOneTap = ({ onSuccess }) => {
-  const [attempt, setAttempt] = useState(0);
+const GoogleOneTap = ({ onUser }) => {
+  const decodeJwt = (token) => {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    return JSON.parse(atob(base64));
+  };
 
   useGoogleOneTapLogin({
-    onSuccess: (credentialResponse) => {
-      console.log("One Tap success:", credentialResponse);
-      onSuccess?.(credentialResponse);
-    },
-    onError: () => {
-      console.log("One Tap dismissed or failed, retrying...");
-      setTimeout(() => setAttempt((prev) => prev + 1), 3000);
+    onSuccess: ({ credential }) => {
+      const decoded = decodeJwt(credential);
+
+      const user = {
+        email: decoded.email,
+        name: decoded.name,
+        picture: decoded.picture,
+        sub: decoded.sub,
+      };
+
+      onUser(user);
     },
     cancel_on_tap_outside: false,
   });
 
-  return <div id="google-one-tap-container"></div>;
+  return null;
 };
 
 export default GoogleOneTap;

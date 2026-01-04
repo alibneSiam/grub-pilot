@@ -1,5 +1,4 @@
 import './App.css'
-import './index.css';
 import Hero from './components/Hero'
 import SignIn from './components/SignIn'
 import MealPicker from './components/MealPicker'
@@ -7,11 +6,14 @@ import Tabs from './components/Tabs'
 import Disclaimer from './components/Disclaimer'
 import Report from './components/Report'
 import GoogleOneTap from './components/google auth/GoogleOneTap';
+import { useState } from 'react'
 
 function App() {
+  const [user, setUser] = useState(null);
+  
   const tabs = [
     { id: "readme", label: "📜 Read Me", content: <Disclaimer />},
-    { id: "signin", label: "🔑 Sign In", content: <SignIn /> },
+    { id: "signin", label: "🔑 Sign In", content: <SignIn user={user}/> },
     { id: "meal", label: "🍔 Meal Picker", content: <MealPicker /> },
     { id: "report", label: "📨 Report Issues", content: <Report /> },
   ]
@@ -24,7 +26,7 @@ function App() {
         <Hero />
         <br />
         <Tabs tabs={tabs} defaultTab="signin" />
-        <GoogleOneTap />
+        <GoogleOneTap onUser={setUser}/>
       </div>
   )
 }
