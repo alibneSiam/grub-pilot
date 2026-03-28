@@ -1,64 +1,94 @@
 import { useState } from "react";
+import { apiRequest } from "../lib/backendApi";
+import FloatingField from "./FloatingField";
+import { hasText, isCommureEmail, isStrongPassword } from "../lib/validation";
 
-const UpdateUser = ({ googleUser }) => {
-  const [userExist, setUserExist] = useState(true);
-  const isCommureEmail = googleUser.email.endsWith("@commure.com");
+const UpdateUser = () => {
+  const [form, setForm] = useState({ email: "", currentPassword: "", newPassword: "", confirmPassword: "" });
+  const [status, setStatus] = useState({ kind: "idle", message: "" });
+
+  const submitPasswordUpdate = async (event) => {
+    event.preventDefault();
+    if (!canSubmit) {
+      setStatus({ kind: "error", message: "Valid commure emails are able to avail this service." });
+      return;
+    }
+    if (form.newPassword !== form.confirmPassword) {
+      setStatus({ kind: "error", message: "Passwords do not match." });
+      return;
+    }
+
+    setStatus({ kind: "loading", message: "Updating password..." });
+
+    try {
+      const data = await apiRequest("/users/password", {
+        method: "PATCH",
+        body: {
+          email: form.email,
+          current_password: form.currentPassword,
+          new_password: form.newPassword,
+        },
+      });
+
+      setStatus({ kind: "success", message: data?.message || "Password updated." });
+      setForm((current) => ({ ...current, currentPassword: "", newPassword: "", confirmPassword: "" }));
+    } catch (error) {
+      setStatus({ kind: "error", message: error.message });
+    }
+  };
+
+  const statusClasses = {
+    idle: "text-gray-300",
+    loading: "text-orange-200",
+    success: "text-green-300",
+    error: "text-red-300",
+  };
+
+  const buttonClass = "mt-4 min-h-[48px] w-full cursor-pointer rounded-md bg-orange-400 px-4 py-2 font-semibold text-black transition-all duration-300 hover:bg-orange-500";
+  const buttonInteractiveClass = "disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 hover:scale-[1.01] active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300";
+  const canSubmit = isCommureEmail(form.email) && hasText(form.currentPassword) && isStrongPassword(form.newPassword) && form.newPassword === form.confirmPassword;
 
   return (
-    <div className="flex flex-col md:flex-row w-full justify-center items-start md:items-center space-y-6 md:space-y-0 md:space-x-8 text-left">
-      
-      <div className="flex flex-col items-center text-right mr-16 lg:mr-32">
-        <img
-          src={googleUser.picture}
-          alt={googleUser.name}
-          className="w-32 h-32 mb-8 rounded-full"
+    <div className="h-full space-y-4 rounded-xl border border-orange-400/30 bg-black/20 p-6 text-left">
+      <form onSubmit={submitPasswordUpdate} className="grid flex-1 gap-1 md:grid-cols-2 w-full">
+        <FloatingField
+          label="Email"
+          type="email"
+          placeholder="name@commure.com"
+          value={form.email}
+          onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
+          required
         />
-        <div>
-          <p className="font-semibold text-xl">Hello {googleUser.name}!</p>
-          <p className="text-sm text-gray-300">{googleUser.email}</p>
-        </div>
-      </div>
+        <FloatingField
+          label="Current Password"
+          type="password"
+          placeholder="Enter Old Password"
+          value={form.currentPassword}
+          onChange={(event) => setForm((current) => ({ ...current, currentPassword: event.target.value }))}
+          required
+        />
+        <FloatingField
+          label="New Password"
+          type="password"
+          placeholder="Enter New Password"
+          value={form.newPassword}
+          onChange={(event) => setForm((current) => ({ ...current, newPassword: event.target.value }))}
+          required
+        />
+        <FloatingField
+          label="Confirm Password"
+          type="password"
+          placeholder="Confirm New Password"
+          value={form.confirmPassword}
+          onChange={(event) => setForm((current) => ({ ...current, confirmPassword: event.target.value }))}
+          required
+        />
+        <button type="submit" disabled={!canSubmit || status.kind === 'loading'} className={`md:col-span-2 ${buttonClass} ${buttonInteractiveClass} cursor-pointer`}>
+          🔒 Update Password
+        </button>
+        <p className={`md:col-span-2 mt-3 text-sm ${statusClasses[status.kind]}`}>{status.message}</p>
+      </form>
 
-      {isCommureEmail ? (
-        <form className="flex flex-col space-y-4 w-full max-w-sm">
-          {userExist && (
-            <input
-              type="password"
-              name="oldPassword"
-              placeholder="Enter Old Password"
-              className="w-full px-3 py-2 rounded-md bg-black/40 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-orange-400"
-              required
-            />
-          )}
-
-          <input
-            type="password"
-            name="newPassword"
-            placeholder="Enter New Password"
-            className="w-full px-3 py-2 rounded-md bg-black/40 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-orange-400"
-            required
-          />
-
-          <input
-            type="password"
-            name="confirmPassword"
-            placeholder="Confirm New Password"
-            className="w-full px-3 py-2 rounded-md bg-black/40 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-orange-400"
-            required
-          />
-
-          <button
-            type="submit"
-            className="px-4 py-2 rounded-md font-semibold bg-orange-400 text-black hover:bg-orange-500 transition-all duration-300"
-          >
-            {userExist ? "Update Password" : "Set Password"}
-          </button>
-        </form>
-      ) : (
-        <div className="w-full max-w-sm rounded-full px-4 py-4 text-white font-bold text-center rounded-md">
-          <div className="tenor-gif-embed" data-postid="1482602579291311529" data-share-method="host" data-aspect-ratio="1" data-width="100%"><a href="https://tenor.com/view/pepe-pepe-the-frog-disappointed-disappointed-pepe-tired-gif-1482602579291311529">Pepe Pepe The Frog GIF</a>from <a href="https://tenor.com/search/pepe-gifs">Pepe GIFs</a></div> <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
-        </div>
-      )}
     </div>
   );
 };

@@ -43,8 +43,15 @@
 
 @layer utilities {
   input:-webkit-autofill {
-    -webkit-box-shadow: 0 0 0px 1000px rgba(0,0,0,0.25) inset;
+    -webkit-box-shadow: 0 0 0px 1000px rgba(8, 8, 8, 0.92) inset;
     -webkit-text-fill-color: white;
     transition: background-color 5000s ease-in-out 0s;
+  }
+
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0px 1000px rgba(8, 8, 8, 0.92) inset;
+    -webkit-text-fill-color: white;
   }
 }

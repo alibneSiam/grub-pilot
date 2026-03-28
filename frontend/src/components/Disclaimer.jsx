@@ -19,12 +19,6 @@ const Disclaimer = () => {
       </p>
     
     <br />
-      <p>
-        Even though passwords and encryption keys are stored securely in Google Firebase, this <strong>does not make them immune</strong> to potential breaches. 
-        <br /><br />
-        We strongly encourage that you<strong> change your AXBD cafeteria password to one that you do not use for any other accounts</strong> if you wish to avail this service.
-      </p>
-        <br />
 
     <h3 className="text-xl font-bold">📢 Disclaimer</h3>
       <p>

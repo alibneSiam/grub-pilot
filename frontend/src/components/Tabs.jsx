@@ -1,10 +1,19 @@
 import { useState, useRef, useEffect } from "react";
 
-const Tabs = ({ tabs, defaultTab }) => {
-  const [activeTab, setActiveTab] = useState(defaultTab || tabs[0].id);
+const Tabs = ({ tabs, defaultTab, activeTab: controlledActiveTab, onTabChange }) => {
+  const [uncontrolledActiveTab, setUncontrolledActiveTab] = useState(defaultTab || tabs[0].id);
   const [height, setHeight] = useState("auto");
   const contentRefs = useRef({});
   const resizeObserver = useRef(null);
+
+  const activeTab = controlledActiveTab || uncontrolledActiveTab;
+  const setActiveTab = onTabChange || setUncontrolledActiveTab;
+
+  useEffect(() => {
+    if (controlledActiveTab) {
+      setUncontrolledActiveTab(controlledActiveTab);
+    }
+  }, [controlledActiveTab]);
 
   const updateHeight = () => {
     const currentEl = contentRefs.current[activeTab];

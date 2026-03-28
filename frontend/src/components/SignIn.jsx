@@ -1,30 +1,72 @@
+import { useState } from "react";
 import UpdateUser from "./UpdateUser";
+import AccountForms from "./AccountForms";
+import ForgotPassword from "./ForgotPassword";
+import DeleteAccount from "./DeleteAccount";
+import CollapsibleSection from "./CollapsibleSection";
 
-const SignIn = ({ user }) => {
-  const handleButtonLogin = () => {
-    document.cookie = "g_state=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    window.location.reload();
-  };
+const SignIn = ({ onSignupSuccess }) => {
+  const [openSection, setOpenSection] = useState(null)
+  const [sectionKeys, setSectionKeys] = useState({
+    invitation: 0,
+    update: 0,
+    forgot: 0,
+    delete: 0,
+  })
+
+  const toggleSection = (section) => {
+    setOpenSection((current) => {
+      if (current === section) {
+        setSectionKeys((keys) => ({ ...keys, [section]: keys[section] + 1 }))
+        return null
+      }
+
+      if (current) {
+        setSectionKeys((keys) => ({ ...keys, [current]: keys[current] + 1 }))
+      }
+
+      return section
+    })
+  }
 
   return (
-    <div className="py-8 flex justify-center items-center flex-col gap-4">
-      {user ? <UpdateUser googleUser={user} />
-      : (
-        <button className="text-center cursor-pointer relative inline-block p-4
-          bg-transparent font-semibold w-90
-          before:block before:absolute before:-inset-1
-          before:-skew-y-3 before:bg-orange-400
-          before:transition-all before:duration-1000 before:ease-out
-          hover:before:-skew-y-0 hover:before:bg-orange-500"
-          onClick={handleButtonLogin}>
-          <span className="relative text-black font-bold">
-            Sign in with Commure Google
-          </span>
-        </button>
-      )}
+    <div className="py-8">
+      <div className="flex w-full flex-col gap-10 items-stretch">
+        <CollapsibleSection
+          title="Invitation & Signup"
+          emoji="✉️"
+          open={openSection === 'invitation'}
+          onToggle={() => toggleSection('invitation')}
+        >
+          <AccountForms key={sectionKeys.invitation} onSignupSuccess={onSignupSuccess} />
+        </CollapsibleSection>
+        <CollapsibleSection
+          title="Update Password"
+          emoji="🔒"
+          open={openSection === 'update'}
+          onToggle={() => toggleSection('update')}
+        >
+          <UpdateUser key={sectionKeys.update} />
+        </CollapsibleSection>
+        <CollapsibleSection
+          title="Forgot Password"
+          emoji="🪄"
+          open={openSection === 'forgot'}
+          onToggle={() => toggleSection('forgot')}
+        >
+          <ForgotPassword key={sectionKeys.forgot} />
+        </CollapsibleSection>
+        <CollapsibleSection
+          title="Delete Account"
+          emoji="🗑️"
+          open={openSection === 'delete'}
+          onToggle={() => toggleSection('delete')}
+        >
+          <DeleteAccount key={sectionKeys.delete} />
+        </CollapsibleSection>
+      </div>
     </div>
   );
 };
 
 export default SignIn;
-
